@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Mapbox + Google Hybrid Satellite</title>
+
+		<script src="https://api.tiles.mapbox.com/mapbox.js/v2.1.9/mapbox.js"></script>
+		<link rel="stylesheet" href="https://api.tiles.mapbox.com/mapbox.js/v2.1.9/mapbox.css" />
+
+	</head>
+	<body>
+		<div style="width:500px; height:500px" id="map"></div>
+		<script type='text/javascript'>
+			L.mapbox.accessToken = 'pk.eyJ1Ijoid293amFrZTEiLCJhIjoiMzMyMWY2Njk4MTA0NDZjNjVkMWVmNGQ3YWMzMjM3MTMifQ.MQ5_BYB1G5e6g0ne9AP0pg';
+
+			var coordinateOslo = [59.916667, 10.75];
+			var zoomLevel = 12;
+
+			map = L.mapbox.map('map', null, {
+				center:coordinateOslo,
+				zoom: zoomLevel
+			});
+
+			var layers = {
+				Satellite: L.mapbox.tileLayer('mapbox.streets-satellite'),
+				Streets: L.mapbox.tileLayer('mapbox.streets'),
+				Google: L.tileLayer('https://mts{s}.google.com/vt/lyrs=s@186112443&hl=x-local&src=app&x={x}&y={y}&z={z}&s=Galile', {
+					subdomains: '0123',
+					attribution: '&copy; Google Maps'
+				}),
+			};
+
+			layers.Satellite.addTo(map);
+			L.control.layers(layers).addTo(map);
+
+			// google hybrid
+			var google_hybrid_overlay = L.tileLayer('https://mts{s}.google.com/vt/lyrs=h@186112443&hl=x-local&src=app&x={x}&y={y}&z={z}&s=Galile', {
+				subdomains: '0123',
+				attribution: '&copy; Google Maps',
+				zIndex: 4
+			})
+
+			google_hybrid_overlay.setOpacity(0);
+			map.addLayer(google_hybrid_overlay)
+
+			// listen for google maps
+			map.on('baselayerchange', function(eo)
+			{
+				if( eo.name == 'Google' ) {
+					google_hybrid_overlay.setOpacity(1);
+				}
+				else {
+					google_hybrid_overlay.setOpacity(0);
+				}
+			})
+			
+		</script>
+	</body>
+</html>
